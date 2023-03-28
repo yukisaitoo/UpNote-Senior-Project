@@ -1,0 +1,45 @@
+.landing-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+
+  h1 {
+    font-size: 45px;
+    margin: 0;
+  }
+}
+
+.lc-content-wrap {
+  transform: translateY(-10%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lc-logo {
+  height: 25vh;
+  margin: 10px;
+  z-index: 2;
+}
+
+.lc-logo-shadow {
+  width: 100%;
+  height: 20px;
+  border-radius: 80%;
+  background-color: #fff;
+  transform: translateY(-14vh);
+  position: relative;
+  z-index: -2;
+
+  box-shadow: 0px 12vh 18px 2px rgba(0, 0, 0, 0.4);
+}
+
+.lc-buttons {
+  margin-top: 10px;
+  display: flex;
+  width: 80%;
+  justify-content: space-between;
+}

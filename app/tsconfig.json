@@ -23,7 +23,8 @@
       "checkJs": true
     },
     "include": [
-      "src"
+      "src",
+      "resources/**/*.ts",
     ],
     "exclude": [
         "node_modules",
