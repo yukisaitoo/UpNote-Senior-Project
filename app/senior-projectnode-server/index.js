@@ -9,7 +9,7 @@ const port = 3001;
 
 app.use(cors());
 
-mongoose.connect('mongodb+srv://patrickchau:KkvW3Ma7COCPcV35@cluster0.7sfksov.mongodb.net/ExampleSnrProject?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://joeljacob2k1:x4M9jtEU2x1BY86z@cluster0.zpko0ri.mongodb.net/UpNote?retryWrites=true&w=majority',
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
