@@ -1,2 +1,9 @@
-$btn_blue: #23A6EF;
-$btn_red: #FD3D3D;
+$btn_blue: #23a6ef;
+$btn_red: #fd3d3d;
+
+@mixin flex-temp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

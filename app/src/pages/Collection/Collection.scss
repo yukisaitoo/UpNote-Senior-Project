@@ -1,0 +1,99 @@
+@use "variables";
+@use "sass:math";
+
+@mixin c-tc-thead-item {
+  border-bottom: 2px solid black;
+}
+
+@mixin align-font-mid {
+  text-align: center;
+}
+
+@mixin t-t {
+  width: 50%;
+}
+
+@mixin t-d-v {
+  width: 20%;
+}
+
+@mixin t-d {
+  width: 10%;
+}
+
+.collection-content {
+  @include variables.flex-temp;
+}
+
+.c-body {
+  @include variables.flex-temp;
+  transform: translateY(60px);
+  width: 100%;
+}
+
+.c-header {
+  display: flex;
+  margin: 20px 0px;
+  width: 80%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-table {
+  width: 90%;
+  font-size: large;
+}
+
+.c-tc-thead,
+.c-tc-content-wrap {
+  display: flex;
+  width: 100%;
+}
+
+.c-tc-content-wrap {
+  margin: 15px 0;
+}
+
+.c-tc-content {
+  @include variables.flex-temp;
+}
+
+.c-tc-thead-title {
+  @include c-tc-thead-item;
+  @include t-t;
+}
+
+.c-tc-thead-date {
+  @include c-tc-thead-item;
+  @include align-font-mid;
+  @include t-d-v;
+}
+
+.c-tc-thead-video {
+  @include c-tc-thead-item;
+  @include align-font-mid;
+  @include t-d-v;
+}
+
+.c-tc-thead-delete {
+  @include c-tc-thead-item;
+  @include t-d;
+}
+
+.c-tc-c-title {
+  @include t-t;
+}
+
+.c-tc-c-date {
+  @include align-font-mid;
+  @include t-d-v;
+}
+
+.c-tc-c-video {
+  @include align-font-mid;
+  @include t-d-v;
+}
+
+.c-tc-c-delete {
+  @include t-d;
+}

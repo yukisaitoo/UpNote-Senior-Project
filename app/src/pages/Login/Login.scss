@@ -1,0 +1,62 @@
+@use "variables";
+
+.login {
+  @include variables.flex-temp;
+  height: 100vh;
+}
+
+.login-box {
+  width: 400px;
+  padding: 40px;
+  // transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.login-box h2 {
+  margin: 0 0 30px;
+  padding: 0;
+  text-align: center;
+}
+
+.login-box .user-box {
+  position: relative;
+  color: #797979;
+}
+
+.login-box .user-box input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  margin-bottom: 30px;
+  border: none;
+  border-bottom: 1px solid #b0b0b0;
+  outline: none;
+  background: transparent;
+}
+.login-box .user-box label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px 0;
+  font-size: 16px;
+  pointer-events: none;
+  transition: 0.5s;
+}
+
+.login-box .user-box input:focus ~ label,
+.login-box .user-box input:valid ~ label {
+  top: -20px;
+  left: 0;
+  color: #03e9f4;
+  font-size: 12px;
+}
+
+.lb-button {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.lb-signup-text {
+}

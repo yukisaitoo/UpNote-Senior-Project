@@ -3,7 +3,7 @@ import "./Login.scss";
 import Button from "components/Button/Button";
 import NavBar from "components/NavBar/Navbar";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface UserInfoType {
   username: string;
@@ -12,7 +12,7 @@ interface UserInfoType {
   email: string;
 }
 
-const Login = () => {
+const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
     email: "",
     password: "",
@@ -20,14 +20,27 @@ const Login = () => {
 
   console.log({ userInfo });
 
-  const navigate = useNavigate();
-
   return (
     <div className="login">
       <NavBar />
       <div className="login-box">
-        <h2>Login</h2>
+        <h2>Sign Up</h2>
         <div>
+          <div className="user-box">
+            <input
+              type="text"
+              name=""
+              required={true}
+              onChange={(event) => {
+                const newUserInfo = {
+                  ...userInfo,
+                  username: event.target.value,
+                };
+                setUserInfo(newUserInfo);
+              }}
+            />
+            <label>Username</label>
+          </div>
           <div className="user-box">
             <input
               type="email"
@@ -58,13 +71,23 @@ const Login = () => {
             />
             <label>Password</label>
           </div>
-          <div className="lb-button">
-            <Button
-              color="blue"
-              onClick={() => {
-                navigate("/collection");
+          <div className="user-box">
+            <input
+              type="text"
+              name=""
+              required={true}
+              onChange={(event) => {
+                const newUserInfo = {
+                  ...userInfo,
+                  username: event.target.value,
+                };
+                setUserInfo(newUserInfo);
               }}
-            >
+            />
+            <label>Re-Enter Password</label>
+          </div>
+          <div className="lb-button">
+            <Button color="blue">
               <>Submit</>
             </Button>
           </div>
@@ -72,11 +95,11 @@ const Login = () => {
       </div>
       <div className="lb-signup-text">
         <p>
-          Don&apos;t have an account? Sign up <Link to="/signup">here</Link>
+          Already have an account? Login <Link to="/login">here</Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default SignUp;
