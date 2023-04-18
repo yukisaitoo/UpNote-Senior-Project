@@ -1,0 +1,38 @@
+@use "variables";
+
+.ev-content {
+  @include variables.flex-temp;
+  flex-direction: row;
+  transform: translateY(60px);
+}
+
+.ev-video-content-inner {
+  background-color: blue;
+  width: 50vw;
+}
+
+.App {
+  text-align: center;
+}
+.video_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.player__wrapper {
+  position: relative;
+}
+
+.player {
+  border: 2px solid #7b2cbf;
+  object-fit: cover;
+  padding: 0;
+  margin: 0;
+}
+
+h2 {
+  color: #7b2cbf;
+}
