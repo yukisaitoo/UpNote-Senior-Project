@@ -1,9 +1,8 @@
 import "./EditVideo.scss";
 
-import { Breakpoint, Container } from "@mui/material";
-import Button from "components/Button/Button";
+// import Button from "components/Button/Button";
 import NavBar from "components/NavBar/Navbar";
-import { LegacyRef, Ref, SyntheticEvent, useRef, useState } from "react";
+import { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import BaseReactPlayer, { OnProgressProps } from "react-player/base";
 import { useNavigate } from "react-router-dom";
@@ -22,8 +21,8 @@ const EditVideo = () => {
   const controlRef = useRef<HTMLElement>({} as HTMLElement);
 
   const [videoState, setVideoState] = useState({
-    playing: true,
-    muted: false,
+    playing: false,
+    muted: true,
     volume: 0.5,
     playbackRate: 1.0,
     played: 0,
@@ -35,12 +34,19 @@ const EditVideo = () => {
   const { playing, muted, volume, playbackRate, played, seeking, buffer } =
     videoState;
 
-  // const currentTime = videoPlayerRef.current
-  //   ? videoPlayerRef.current?.getCurrentTime()
-  //   : "00:00";
-  // const duration = videoPlayerRef.current
-  //   ? videoPlayerRef.current?.getDuration()
-  //   : "00:00";
+  // let currentTime = "00:00",
+  //   duration = "00:00";
+
+  // useEffect(() => {
+  //   currentTime = videoPlayerRef.current
+  //     ? videoPlayerRef.current?.getCurrentTime() + ""
+  //     : "00:00";
+  //   duration = videoPlayerRef.current
+  //     ? videoPlayerRef.current?.getDuration() + ""
+  //     : "00:00";
+
+  //   console.log({ currentTime, duration });
+  // }, []);
 
   // const formatCurrentTime = formatTime(currentTime);
   // const formatDuration = formatTime(duration);
@@ -52,12 +58,12 @@ const EditVideo = () => {
 
   const rewindHandler = () => {
     //Rewinds the video player reducing 5
-    // videoPlayerRef.current.seekTo(videoPlayerRef.current.getCurrentTime() - 5);
+    videoPlayerRef.current.seekTo(videoPlayerRef.current.getCurrentTime() - 5);
   };
 
   const handleFastFoward = () => {
     //FastFowards the video player by adding 10
-    // videoPlayerRef.current.seekTo(videoPlayerRef.current.getCurrentTime() + 10);
+    videoPlayerRef.current.seekTo(videoPlayerRef.current.getCurrentTime() + 10);
   };
 
   //console.log("========", (controlRef.current.style.visibility = "false"));
@@ -113,7 +119,7 @@ const EditVideo = () => {
     event: Event | SyntheticEvent<Element, Event>,
     value: number | number[]
   ) => {
-    const newVolume = parseFloat((value as number) + "") / 100;
+    const newVolume = (value as number) / 100;
 
     setVideoState({
       ...videoState,
@@ -131,10 +137,24 @@ const EditVideo = () => {
     setVideoState({ ...videoState, seeking: true });
   };
 
-  const mouseMoveHandler = () => {
-    if (controlRef.current !== null && controlRef !== null)
-      controlRef.current.style.visibility = "visible";
+  const mouseMoveHandler = (e: SyntheticEvent) => {
+    if (controlRef.current !== null && controlRef !== null) {
+      if (e.type === "mouseover") {
+        controlRef.current.style.visibility = "visible";
+      }
+      if (e.type === "mouseleave") {
+        controlRef.current.style.visibility = "hidden";
+      }
+    }
     count = 0;
+  };
+
+  const mouseClickHandler = (e: SyntheticEvent) => {
+    if (controlRef.current !== null && controlRef !== null) {
+      if (e.type === "click") {
+        setVideoState({ ...videoState, playing: !videoState.playing });
+      }
+    }
   };
 
   const bufferStartHandler = () => {
@@ -151,20 +171,25 @@ const EditVideo = () => {
     <div className="edit-video">
       <NavBar />
       <div className="ev-content">
-        <div className="ev-video">
-          <div className="ev-dir-crumbs">
-            <>Personal Collection &gt; Tech Vids &gt; New Note</>
+        <div className="ev-content-child-video">
+          <div className="ev-ccv-dir-crumbs">
+            <>Personal Collection &gt; New Note</>
           </div>
-          <div className="ev-video-content">
-            <div className="ev-v-c-crumbs">
+          <div className="ev-ccv-content">
+            <div className="ev-ccv-c-crumbs">
               <>Video &gt; Can You Trust MKBHD?</>
             </div>
-            <div className="ev-video-content-inner">
-              <div className="player__wrapper" onMouseMove={mouseMoveHandler}>
+            <div className="ev-ccv-c-inner">
+              <div
+                className="player__wrapper"
+                // onMouseOver={mouseMoveHandler}
+                // onMouseLeave={mouseMoveHandler}
+                // onClick={mouseClickHandler}
+              >
                 <ReactPlayer
                   ref={videoPlayerRef}
                   className="player"
-                  url="https://www.youtube.com/watch?v=6arkndScw7A&list=PLSxgVLtIB0IFmQGuVMSE_wDHPW5rq4Ik7"
+                  url="http://www.youtube.com/watch?v=6arkndScw7A&list=PLSxgVLtIB0IFmQGuVMSE_wDHPW5rq4Ik7"
                   width="100%"
                   height="100%"
                   playing={playing}
@@ -172,10 +197,9 @@ const EditVideo = () => {
                   muted={muted}
                   onProgress={progressHandler}
                   onBuffer={bufferStartHandler}
+                  controls={false}
                   onBufferEnd={bufferEndHandler}
                 />
-
-                {buffer && <p>Loading</p>}
 
                 <Control
                   controlRef={controlRef as LegacyRef<HTMLDivElement>}
@@ -200,11 +224,24 @@ const EditVideo = () => {
             </div>
           </div>
         </div>
-        <div className="ev-log">
-          <div className="ev-log-title">
-            <>Note Log</>
+        <div className="ev-content-child-log">
+          <div className="ev-ccl-wrap">
+            <div className="ev-log-title">
+              <>Note Log</>
+            </div>
+            <div className="ev-log-list">
+              <div className="ev-log-list-item">
+                <div className="ev-lli-timeStampt">00:00</div>
+                <div className="ev-lli-title">Trust and Ethics</div>
+                <div className="ev-lli-icon">insert_icon</div>
+              </div>
+              <div className="ev-log-list-item">
+                <div className="ev-lli-timeStampt">00:00</div>
+                <div className="ev-lli-title">Trust and Ethics</div>
+                <div className="ev-lli-icon">insert_icon</div>
+              </div>
+            </div>
           </div>
-          <div className="ev-log-list"></div>
         </div>
       </div>
     </div>

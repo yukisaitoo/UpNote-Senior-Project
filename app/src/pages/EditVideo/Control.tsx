@@ -1,28 +1,14 @@
 /* eslint-disable react/prop-types */
 import "./Control.scss";
 
-import {
-  FastForward,
-  FastRewind,
-  Pause,
-  PlayArrow,
-  SkipNext,
-  VolumeDown,
-  VolumeUp,
-} from "@mui/icons-material";
-import { Button, Grid, Popover, Slider, Tooltip } from "@mui/material";
+import { Pause, PlayArrow, VolumeMute, VolumeUp } from "@mui/icons-material";
+import { Slider } from "@mui/material";
 import { makeStyles, withStyles } from "@mui/styles";
-import {
-  LegacyRef,
-  MouseEventHandler,
-  MutableRefObject,
-  RefObject,
-  SyntheticEvent,
-} from "react";
+import { LegacyRef, MouseEventHandler, SyntheticEvent } from "react";
 
 const useStyles = makeStyles({
   volumeSlider: {
-    width: "100px",
+    width: "20px",
     color: "#9556CC",
   },
 
@@ -49,16 +35,16 @@ const PrettoSlider = withStyles({
     width: 20,
     backgroundColor: "#9556CC",
     border: "2px solid currentColor",
-    marginTop: -3,
-    marginLeft: -12,
+    // marginTop: -3,
+    // marginLeft: -12,
     "&:focus, &:hover, &$active": {
       boxShadow: "inherit",
     },
   },
   active: {},
-  valueLabel: {
-    left: "calc(-50% + 4px)",
-  },
+  // valueLabel: {
+  //   left: "calc(40% + 4px)",
+  // },
   track: {
     height: 5,
     borderRadius: 4,
@@ -103,14 +89,11 @@ interface ControlType {
 const Control = ({
   onPlayPause,
   playing,
-  onRewind,
-  onForward,
   played,
   onSeek,
   onSeekMouseUp,
   onVolumeChangeHandler,
   onVolumeSeekUp,
-  playRate,
   volume,
   mute,
   onMute,
@@ -123,26 +106,7 @@ const Control = ({
 
   return (
     <div className="control_Container" ref={controlRef}>
-      <div className="top_container">
-        <h2>Video PLayer</h2>
-      </div>
-      <div className="mid__container">
-        <div className="icon__btn" onDoubleClick={onRewind}>
-          <FastRewind fontSize="medium" />
-        </div>
-
-        <div className="icon__btn" onClick={onPlayPause}>
-          {playing ? (
-            <Pause fontSize="medium" />
-          ) : (
-            <PlayArrow fontSize="medium" />
-          )}{" "}
-        </div>
-
-        <div className="icon__btn">
-          <FastForward fontSize="medium" onDoubleClick={onForward} />
-        </div>
-      </div>
+      <div className="mid__container"></div>
       <div className="bottom__container">
         <div className="slider__container">
           <PrettoSlider
@@ -152,36 +116,40 @@ const Control = ({
             onChange={onSeek}
             onChangeCommitted={onSeekMouseUp}
             onMouseDown={onMouseSeekDown}
+            className={"pretto-slider"}
           />
         </div>
         <div className="control__box">
           <div className="inner__controls">
             <div className="icon__btn" onClick={onPlayPause}>
               {playing ? (
-                <Pause fontSize="medium" />
+                <Pause fontSize="medium" htmlColor="#4dc9ff" />
               ) : (
-                <PlayArrow fontSize="medium" />
+                <PlayArrow fontSize="medium" htmlColor="#4dc9ff" />
               )}{" "}
             </div>
             <div className="icon__btn" onClick={onMute}>
               {mute ? (
-                <VolumeDown fontSize="medium" />
+                <VolumeMute fontSize="medium" htmlColor="#4dc9ff" />
               ) : (
-                <VolumeUp fontSize="medium" />
+                <VolumeUp fontSize="medium" htmlColor="#4dc9ff" />
               )}
             </div>
 
             <Slider
-              className={`${classes.volumeSlider}`}
+              className={`${classes.volumeSlider} c-slider`}
               onChange={onVolumeChangeHandler}
-              value={volume * 100}
+              value={!mute ? volume * 100 : 0}
               onChangeCommitted={onVolumeSeekUp}
             />
 
-            <span>
+            {/* <span className="c-time">
               {currentTime} : {duration}
-            </span>
+            </span> */}
           </div>
+        </div>
+        <div className="bc-shadow-wrap">
+          <div className="bc-shadow"></div>
         </div>
       </div>
     </div>

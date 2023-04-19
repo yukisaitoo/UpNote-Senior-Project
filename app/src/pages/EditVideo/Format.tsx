@@ -1,15 +1,21 @@
 export const formatTime = (time: number | string) => {
   //formarting duration of video
-  if (isNaN(time as number)) {
+
+  if (isNaN(parseInt(time as string))) {
     return "00:00";
+  } else {
+    time = parseInt(time as string);
   }
 
-  const date = new Date((time as number) * 1000);
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  const seconds = date.getUTCSeconds().toString().padStart(2, "0");
-  if (hours) {
-    //if video have hours
-    return `${hours}:${minutes.toString().padStart(2, "0")} `;
-  } else return `${minutes}:${seconds}`;
+  if (typeof time === "number") {
+    const hours =
+      (Math.floor(time / 60) + "").length < 2
+        ? "0" + Math.floor(time / 60)
+        : Math.floor(time / 60);
+    const minutes =
+      ((time % 60) + "").length < 2 ? "0" + (time % 60) : time % 60;
+
+    console.log(hours + ":" + minutes);
+    return hours + ":" + minutes;
+  }
 };
