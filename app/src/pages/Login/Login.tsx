@@ -1,8 +1,10 @@
+/* eslint-disable camelcase */
 import "./Login.scss";
 
 import Button from "components/Button/Button";
 import NavBar from "components/NavBar/Navbar";
-import { useState } from "react";
+import jwt_decode from "jwt-decode";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 interface UserInfoType {
@@ -18,10 +20,39 @@ const Login = () => {
     password: "",
   } as UserInfoType);
 
+  const [ user, setUser ] = useState({} as unknown);
+  
   console.log({ userInfo });
+  console.log({ user });
 
   const navigate = useNavigate();
 
+  function handleCallBack(response: any) {
+    console.log("Encoded JWT ID Token: " + response.credential);
+    const user_token = jwt_decode(response.credential);
+    console.log(user_token);
+    setUser(user_token);
+    document.getElementById("signIn")!.hidden = true;
+    if(user){
+      navigate("/collection");
+    }
+  }
+  
+  useEffect(() => {
+    /*global google*/
+    const google = (window as any).google;
+    google.accounts.id.initialize({
+      client_id: "732879004899-dkb4r8nb3hln9h36i5v67ajj52n036oa.apps.googleusercontent.com",
+      callback: handleCallBack
+    });
+  
+    google.accounts.id.renderButton(
+      document.getElementById("signIn"),
+      {theme: "outline", size: "large"}
+    );
+  
+    google.accounts.id.prompt();
+  }, []);
   return (
     <div className="login">
       <NavBar />
@@ -67,6 +98,8 @@ const Login = () => {
             >
               <>Submit</>
             </Button>
+          </div>
+          <div id="signIn">
           </div>
         </div>
       </div>
