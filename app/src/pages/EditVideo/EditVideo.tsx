@@ -1,38 +1,75 @@
 import "./EditVideo.scss";
 
-// import Button from "components/Button/Button";
+import CommentIcon from "@mui/icons-material/Comment";
+import EditIcon from "@mui/icons-material/Edit";
+import MicIcon from "@mui/icons-material/Mic";
 import NavBar from "components/NavBar/Navbar";
+// import Button from "components/Button/Button";
+// import MicRecorder from "mic-recorder-to-mp3";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const MicRecorderClass = require("mic-recorder-to-mp3");
 import { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import BaseReactPlayer, { OnProgressProps } from "react-player/base";
-import { useNavigate } from "react-router-dom";
 
+// import { useNavigate } from "react-router-dom";
 import Control from "./Control";
-import { formatTime } from "./Format";
+// import { formatTime } from "./Format";
 
 let count = 0;
 
 const EditVideo = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const videoPlayerRef = useRef<BaseReactPlayer<ReactPlayerProps>>(
     {} as BaseReactPlayer<ReactPlayerProps>
   );
+  const audioPlayerRef = useRef<HTMLAudioElement>({} as HTMLAudioElement);
   const controlRef = useRef<HTMLElement>({} as HTMLElement);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [Mp3Recorder, setMp3Recorder] = useState(
+    new MicRecorderClass({ bitRate: 128 })
+  );
 
   const [videoState, setVideoState] = useState({
     playing: false,
-    muted: true,
-    volume: 0.5,
+    muted: false,
+    volume: 0.8,
     playbackRate: 1.0,
     played: 0,
     seeking: false,
     buffer: true,
   });
 
+  const [recorderState, setRecorderState] = useState({
+    isRecording: false,
+    micBlobURL: "",
+    isBlocked: false,
+  });
+
+  const [toolState, setToolState] = useState({
+    activeTool: "none",
+  });
+
   //Destructuring the properties from the videoState
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { playing, muted, volume, playbackRate, played, seeking, buffer } =
     videoState;
+
+  const { isRecording, micBlobURL, isBlocked } = recorderState;
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ audio: true }),
+      () => {
+        console.log("Permission Granted");
+        setRecorderState({ ...recorderState, isBlocked: false });
+      },
+      () => {
+        console.log("Permission Denied");
+        setRecorderState({ ...recorderState, isBlocked: true });
+      };
+  }, []);
 
   // let currentTime = "00:00",
   //   duration = "00:00";
@@ -133,29 +170,30 @@ const EditVideo = () => {
     setVideoState({ ...videoState, muted: !videoState.muted });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSeekMouseDownHandler = (e: unknown) => {
     setVideoState({ ...videoState, seeking: true });
   };
 
-  const mouseMoveHandler = (e: SyntheticEvent) => {
-    if (controlRef.current !== null && controlRef !== null) {
-      if (e.type === "mouseover") {
-        controlRef.current.style.visibility = "visible";
-      }
-      if (e.type === "mouseleave") {
-        controlRef.current.style.visibility = "hidden";
-      }
-    }
-    count = 0;
-  };
+  // const mouseMoveHandler = (e: SyntheticEvent) => {
+  //   if (controlRef.current !== null && controlRef !== null) {
+  //     if (e.type === "mouseover") {
+  //       controlRef.current.style.visibility = "visible";
+  //     }
+  //     if (e.type === "mouseleave") {
+  //       controlRef.current.style.visibility = "hidden";
+  //     }
+  //   }
+  //   count = 0;
+  // };
 
-  const mouseClickHandler = (e: SyntheticEvent) => {
-    if (controlRef.current !== null && controlRef !== null) {
-      if (e.type === "click") {
-        setVideoState({ ...videoState, playing: !videoState.playing });
-      }
-    }
-  };
+  // const mouseClickHandler = (e: SyntheticEvent) => {
+  //   if (controlRef.current !== null && controlRef !== null) {
+  //     if (e.type === "click") {
+  //       setVideoState({ ...videoState, playing: !videoState.playing });
+  //     }
+  //   }
+  // };
 
   const bufferStartHandler = () => {
     console.log("Bufering.......");
@@ -165,6 +203,41 @@ const EditVideo = () => {
   const bufferEndHandler = () => {
     console.log("buffering stoped ,,,,,,play");
     setVideoState({ ...videoState, buffer: false });
+  };
+
+  // Mic Functions
+
+  const micStart = () => {
+    if (isBlocked) {
+      console.log("Permission Denied");
+    } else {
+      Mp3Recorder.start()
+        .then(() => {
+          setRecorderState({ ...recorderState, isRecording: true });
+        })
+        .catch((e: Error) => console.error(e));
+    }
+  };
+
+  const micStop = () => {
+    Mp3Recorder.stop()
+      .getMp3()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .then(([buffer, blob]: [string, Blob]) => {
+        const micBlobURL = URL.createObjectURL(blob);
+        setRecorderState({ ...recorderState, micBlobURL, isRecording: false });
+      })
+      .catch((e: Error) => console.log(e));
+  };
+
+  const onToolChange = (e: string) => {
+    if (playing) setVideoState({ ...videoState, playing: false });
+
+    if (e === toolState.activeTool) {
+      setToolState({ activeTool: "none" });
+    } else {
+      setToolState({ activeTool: e });
+    }
   };
 
   return (
@@ -220,6 +293,54 @@ const EditVideo = () => {
                   // currentTime={formatCurrentTime}
                   onMouseSeekDown={onSeekMouseDownHandler}
                 />
+              </div>
+            </div>
+            <div className="ev-ccv-icons">
+              <div className="ev-ccv-icon-wrap">
+                <div className="ev-ccvi-draw">
+                  <EditIcon
+                    onClick={() => {
+                      onToolChange("draw");
+                    }}
+                  />
+                </div>
+                <div className="ev-ccvi-note">
+                  <CommentIcon
+                    // onClick={() => {
+                    //   audioPlayerRef.current.play();
+                    // }}
+
+                    onClick={() => {
+                      onToolChange("comment");
+                    }}
+                  />
+                </div>
+                <div className="ev-ccvi-draw">
+                  <MicIcon
+                    onClick={() => {
+                      onToolChange("mic");
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="ev-ccv-i-controls">
+                {toolState.activeTool === "mic" ? (
+                  <>
+                    <button onClick={micStart} disabled={isRecording}>
+                      Record
+                    </button>
+                    <button onClick={micStop} disabled={!isRecording}>
+                      Stop
+                    </button>
+                    <audio
+                      ref={audioPlayerRef}
+                      src={micBlobURL}
+                      controls={true}
+                    />
+                  </>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           </div>

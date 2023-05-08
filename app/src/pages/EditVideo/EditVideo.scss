@@ -3,7 +3,7 @@
 $videoRatio: 75;
 
 .edit-video {
-  height: 100vh;
+  height: 100%;
 }
 
 .ev-content {
@@ -11,12 +11,12 @@ $videoRatio: 75;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
-  transform: translateY(60px);
+  // transform: translateY(60px);
   position: relative;
   width: auto;
-  margin: 15px 25px;
+  margin: 65px 25px 0px 25px;
   z-index: 5;
-  height: 12.5px * $videoRatio;
+  height: 11px * $videoRatio;
 
   .ev-content-child-video {
     @include variables.flex-temp;
@@ -63,6 +63,34 @@ $videoRatio: 75;
           margin: 0;
         }
       }
+    }
+  }
+}
+
+.ev-ccv-icons {
+  display: flex;
+  flex-direction: column;
+
+  .ev-ccv-icon-wrap {
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+
+    > div {
+      margin: 5px 10px;
+    }
+
+    > div:hover {
+      cursor: pointer;
+    }
+  }
+
+  .ev-ccv-i-controls {
+    display: flex;
+    align-items: center;
+
+    > * {
+      margin: 0px 11px;
     }
   }
 }
