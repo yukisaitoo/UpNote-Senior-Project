@@ -143,9 +143,9 @@ const Control = ({
               onChangeCommitted={onVolumeSeekUp}
             />
 
-            {/* <span className="c-time">
+            <span className="c-time">
               {currentTime} : {duration}
-            </span> */}
+            </span>
           </div>
         </div>
         <div className="bc-shadow-wrap">

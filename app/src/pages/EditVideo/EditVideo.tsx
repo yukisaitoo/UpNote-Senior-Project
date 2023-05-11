@@ -5,16 +5,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import MicIcon from "@mui/icons-material/Mic";
 import NavBar from "components/NavBar/Navbar";
 // import Button from "components/Button/Button";
-// import MicRecorder from "mic-recorder-to-mp3";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MicRecorderClass = require("mic-recorder-to-mp3");
+import Canvas from "components/Canvas/Canvas";
 import { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import BaseReactPlayer, { OnProgressProps } from "react-player/base";
 
 // import { useNavigate } from "react-router-dom";
 import Control from "./Control";
-// import { formatTime } from "./Format";
+import { formatTime } from "./Format";
 
 let count = 0;
 
@@ -26,6 +27,7 @@ const EditVideo = () => {
   );
   const audioPlayerRef = useRef<HTMLAudioElement>({} as HTMLAudioElement);
   const controlRef = useRef<HTMLElement>({} as HTMLElement);
+  const commentRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [Mp3Recorder, setMp3Recorder] = useState(
@@ -35,7 +37,7 @@ const EditVideo = () => {
   const [videoState, setVideoState] = useState({
     playing: false,
     muted: false,
-    volume: 0.8,
+    volume: 0.9,
     playbackRate: 1.0,
     played: 0,
     seeking: false,
@@ -48,14 +50,25 @@ const EditVideo = () => {
     isBlocked: false,
   });
 
+  const [commentState, setCommentState] = useState({
+    text: "",
+  });
+
   const [toolState, setToolState] = useState({
     activeTool: "none",
   });
 
+  const [editLog, setEditLog] = useState({
+    timeStamps: {} as {
+      [key: string]: { type: string; micBlobURL?: string; text?: string };
+    },
+  });
+
   //Destructuring the properties from the videoState
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { playing, muted, volume, playbackRate, played, seeking, buffer } =
-    videoState;
+  const { muted, volume, playbackRate, played, seeking, buffer } = videoState;
+
+  let { playing } = videoState;
 
   const { isRecording, micBlobURL, isBlocked } = recorderState;
 
@@ -71,22 +84,20 @@ const EditVideo = () => {
       };
   }, []);
 
-  // let currentTime = "00:00",
-  //   duration = "00:00";
+  let currentTime = "00:00",
+    duration = "00:00";
 
-  // useEffect(() => {
-  //   currentTime = videoPlayerRef.current
-  //     ? videoPlayerRef.current?.getCurrentTime() + ""
-  //     : "00:00";
-  //   duration = videoPlayerRef.current
-  //     ? videoPlayerRef.current?.getDuration() + ""
-  //     : "00:00";
+  currentTime =
+    videoPlayerRef.current.constructor.name === "ReactPlayer"
+      ? videoPlayerRef.current?.getCurrentTime() + ""
+      : "00:00";
+  duration =
+    videoPlayerRef.current.constructor.name === "ReactPlayer"
+      ? videoPlayerRef.current?.getDuration() + ""
+      : "00:00";
 
-  //   console.log({ currentTime, duration });
-  // }, []);
-
-  // const formatCurrentTime = formatTime(currentTime);
-  // const formatDuration = formatTime(duration);
+  const formatCurrentTime = formatTime(currentTime);
+  const formatDuration = formatTime(duration);
 
   const playPauseHandler = () => {
     //plays and pause the video (toggling)
@@ -106,7 +117,6 @@ const EditVideo = () => {
   //console.log("========", (controlRef.current.style.visibility = "false"));
   const progressHandler = (state: OnProgressProps) => {
     if (count > 3) {
-      console.log("close");
       controlRef.current.style.visibility = "hidden"; // toggling player control container
     } else if (controlRef.current.style.visibility === "visible") {
       count += 1;
@@ -175,17 +185,17 @@ const EditVideo = () => {
     setVideoState({ ...videoState, seeking: true });
   };
 
-  // const mouseMoveHandler = (e: SyntheticEvent) => {
-  //   if (controlRef.current !== null && controlRef !== null) {
-  //     if (e.type === "mouseover") {
-  //       controlRef.current.style.visibility = "visible";
-  //     }
-  //     if (e.type === "mouseleave") {
-  //       controlRef.current.style.visibility = "hidden";
-  //     }
-  //   }
-  //   count = 0;
-  // };
+  const mouseMoveHandler = (e: SyntheticEvent) => {
+    if (controlRef.current !== null && controlRef !== null) {
+      if (e.type === "mouseover") {
+        controlRef.current.style.visibility = "visible";
+      }
+      if (e.type === "mouseleave") {
+        controlRef.current.style.visibility = "hidden";
+      }
+    }
+    count = 0;
+  };
 
   // const mouseClickHandler = (e: SyntheticEvent) => {
   //   if (controlRef.current !== null && controlRef !== null) {
@@ -196,12 +206,10 @@ const EditVideo = () => {
   // };
 
   const bufferStartHandler = () => {
-    console.log("Bufering.......");
     setVideoState({ ...videoState, buffer: true });
   };
 
   const bufferEndHandler = () => {
-    console.log("buffering stoped ,,,,,,play");
     setVideoState({ ...videoState, buffer: false });
   };
 
@@ -234,11 +242,93 @@ const EditVideo = () => {
     if (playing) setVideoState({ ...videoState, playing: false });
 
     if (e === toolState.activeTool) {
+      if (e === "mic") {
+        if (recorderState.micBlobURL.length > 0) {
+          setEditLog({
+            timeStamps: {
+              ...editLog.timeStamps,
+              [formatCurrentTime as string]: {
+                type: "mic",
+                micBlobURL: recorderState.micBlobURL,
+              },
+            },
+          });
+          setRecorderState({
+            ...recorderState,
+            micBlobURL: "",
+            isRecording: false,
+          });
+        }
+      } else if (e === "comment") {
+        if (commentState.text.length > 0) {
+          setEditLog({
+            timeStamps: {
+              ...editLog.timeStamps,
+              [formatCurrentTime as string]: {
+                type: "comment",
+                text: commentState.text,
+              },
+            },
+          });
+          setCommentState({ text: "" });
+        }
+      }
+
       setToolState({ activeTool: "none" });
     } else {
       setToolState({ activeTool: e });
     }
   };
+
+  const checkEdits = async () => {
+    if (
+      Object.keys(editLog.timeStamps).includes(formatCurrentTime as string) &&
+      playing
+    ) {
+      if (editLog.timeStamps[formatCurrentTime as string].type === "mic") {
+        const playAudio = (audio: HTMLAudioElement) => {
+          return new Promise((res) => {
+            audio.play();
+            audio.onended = res;
+          });
+        };
+
+        playing = !playing;
+
+        const test = async () => {
+          const audio = new Audio(
+            editLog.timeStamps[formatCurrentTime as string].micBlobURL
+          );
+
+          await playAudio(audio);
+        };
+
+        await test();
+
+        setTimeout(() => {
+          videoPlayerRef.current.seekTo(
+            videoPlayerRef.current.getCurrentTime() + 1,
+            "seconds"
+          );
+          // playing = !playing;
+        }, 5);
+        // playing = !playing;
+      } else if (
+        editLog.timeStamps[formatCurrentTime as string].type === "comment"
+      ) {
+        commentRef.current.innerHTML = `<div class="text-comment">${
+          editLog.timeStamps[formatCurrentTime as string].text
+        }</div>`;
+        commentRef.current.style.visibility = "visible";
+        setTimeout(() => {
+          commentRef.current.innerHTML = "";
+          commentRef.current.style.visibility = "hidden";
+        }, 7000);
+      }
+    }
+  };
+
+  checkEdits();
 
   return (
     <div className="edit-video">
@@ -250,19 +340,19 @@ const EditVideo = () => {
           </div>
           <div className="ev-ccv-content">
             <div className="ev-ccv-c-crumbs">
-              <>Video &gt; Can You Trust MKBHD?</>
+              <>Video &gt; New Video</>
             </div>
             <div className="ev-ccv-c-inner">
               <div
                 className="player__wrapper"
-                // onMouseOver={mouseMoveHandler}
-                // onMouseLeave={mouseMoveHandler}
+                onMouseOver={mouseMoveHandler}
+                onMouseLeave={mouseMoveHandler}
                 // onClick={mouseClickHandler}
               >
                 <ReactPlayer
                   ref={videoPlayerRef}
                   className="player"
-                  url="http://www.youtube.com/watch?v=6arkndScw7A&list=PLSxgVLtIB0IFmQGuVMSE_wDHPW5rq4Ik7"
+                  url="http://www.youtube.com/watch?v=gxqPbGqYACw"
                   width="100%"
                   height="100%"
                   playing={playing}
@@ -289,11 +379,12 @@ const EditVideo = () => {
                   mute={muted}
                   onMute={muteHandler}
                   playRate={playbackRate}
-                  // duration={formatDuration}
-                  // currentTime={formatCurrentTime}
+                  duration={formatDuration}
+                  currentTime={formatCurrentTime}
                   onMouseSeekDown={onSeekMouseDownHandler}
                 />
               </div>
+              <div ref={commentRef} className="ev-ccv-c-comment-wrap"></div>
             </div>
             <div className="ev-ccv-icons">
               <div className="ev-ccv-icon-wrap">
@@ -302,14 +393,20 @@ const EditVideo = () => {
                     onClick={() => {
                       onToolChange("draw");
                     }}
+                    style={
+                      toolState.activeTool === "draw"
+                        ? { color: "#F2000F" }
+                        : {}
+                    }
                   />
                 </div>
                 <div className="ev-ccvi-note">
                   <CommentIcon
-                    // onClick={() => {
-                    //   audioPlayerRef.current.play();
-                    // }}
-
+                    style={
+                      toolState.activeTool === "comment"
+                        ? { color: "#F2000F" }
+                        : {}
+                    }
                     onClick={() => {
                       onToolChange("comment");
                     }}
@@ -320,6 +417,9 @@ const EditVideo = () => {
                     onClick={() => {
                       onToolChange("mic");
                     }}
+                    style={
+                      toolState.activeTool === "mic" ? { color: "#F2000F" } : {}
+                    }
                   />
                 </div>
               </div>
@@ -338,6 +438,25 @@ const EditVideo = () => {
                       controls={true}
                     />
                   </>
+                ) : toolState.activeTool === "comment" ? (
+                  <>
+                    <div>
+                      <label htmlFor="comment">Comment:</label>
+                      <br />
+                      <textarea
+                        id="comment"
+                        name="comment"
+                        rows={4}
+                        cols={50}
+                        onChange={(e) =>
+                          setCommentState({ text: e.target.value })
+                        }
+                      />
+                      <br />
+                    </div>
+                  </>
+                ) : toolState.activeTool === "draw" ? (
+                  <Canvas width={70 * 16} height={70 * 9} />
                 ) : (
                   <></>
                 )}

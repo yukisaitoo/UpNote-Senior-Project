@@ -14,8 +14,6 @@ export const formatTime = (time: number | string) => {
         : Math.floor(time / 60);
     const minutes =
       ((time % 60) + "").length < 2 ? "0" + (time % 60) : time % 60;
-
-    console.log(hours + ":" + minutes);
     return hours + ":" + minutes;
   }
 };

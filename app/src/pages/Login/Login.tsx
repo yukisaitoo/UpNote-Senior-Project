@@ -20,37 +20,41 @@ const Login = () => {
     password: "",
   } as UserInfoType);
 
-  const [ user, setUser ] = useState({} as unknown);
-  
+  const [user, setUser] = useState({} as unknown);
+
   console.log({ userInfo });
   console.log({ user });
 
   const navigate = useNavigate();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleCallBack(response: any) {
     console.log("Encoded JWT ID Token: " + response.credential);
     const user_token = jwt_decode(response.credential);
     console.log(user_token);
     setUser(user_token);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     document.getElementById("signIn")!.hidden = true;
-    if(user){
+    if (user) {
       navigate("/collection");
     }
   }
-  
+
   useEffect(() => {
     /*global google*/
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const google = (window as any).google;
     google.accounts.id.initialize({
-      client_id: "732879004899-dkb4r8nb3hln9h36i5v67ajj52n036oa.apps.googleusercontent.com",
-      callback: handleCallBack
+      client_id:
+        "732879004899-dkb4r8nb3hln9h36i5v67ajj52n036oa.apps.googleusercontent.com",
+      callback: handleCallBack,
     });
-  
-    google.accounts.id.renderButton(
-      document.getElementById("signIn"),
-      {theme: "outline", size: "large"}
-    );
-  
+
+    google.accounts.id.renderButton(document.getElementById("signIn"), {
+      theme: "outline",
+      size: "large",
+    });
+
     google.accounts.id.prompt();
   }, []);
   return (
@@ -99,8 +103,7 @@ const Login = () => {
               <>Submit</>
             </Button>
           </div>
-          <div id="signIn">
-          </div>
+          <div id="signIn"></div>
         </div>
       </div>
       <div className="lb-signup-text">
