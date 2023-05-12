@@ -11,8 +11,9 @@ export function useOnDraw(onDraw) {
   const mouseUpListenerRef = useRef(null);
 
   // @ts-ignore
-  function setCanvasRef(ref) {
+  function setCanvasRef(ref, copyRef) {
     canvasRef.current = ref;
+    copyRef(ref);
   }
 
   function onCanvasMouseDown() {
@@ -43,7 +44,6 @@ export function useOnDraw(onDraw) {
           if (onDraw) onDraw(ctx, point, prevPointRef.current);
           // @ts-ignore
           prevPointRef.current = point;
-          console.log(point);
         }
       };
       // @ts-ignore

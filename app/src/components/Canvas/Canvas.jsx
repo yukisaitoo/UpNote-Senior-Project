@@ -2,9 +2,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
+import "./Canvas.scss";
+
 import { useOnDraw } from "./Hooks";
 
-const Canvas = ({ width, height }) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Canvas = ({ width, height, copyRef, style }) => {
   const { setCanvasRef, onCanvasMouseDown } = useOnDraw(onDraw);
 
   function onDraw(ctx, point, prevPoint) {
@@ -31,8 +34,8 @@ const Canvas = ({ width, height }) => {
       width={width}
       height={height}
       onMouseDown={onCanvasMouseDown}
-      style={canvasStyle}
-      ref={setCanvasRef}
+      style={{ ...canvasStyle, ...style }}
+      ref={(e) => setCanvasRef(e, copyRef)}
     />
   );
 };

@@ -4,20 +4,25 @@ import CommentIcon from "@mui/icons-material/Comment";
 import EditIcon from "@mui/icons-material/Edit";
 import MicIcon from "@mui/icons-material/Mic";
 import NavBar from "components/NavBar/Navbar";
-// import Button from "components/Button/Button";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MicRecorderClass = require("mic-recorder-to-mp3");
+import Button from "components/Button/Button";
 import Canvas from "components/Canvas/Canvas";
 import { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import BaseReactPlayer, { OnProgressProps } from "react-player/base";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // import { useNavigate } from "react-router-dom";
 import Control from "./Control";
 import { formatTime } from "./Format";
 
 let count = 0;
+let visible = false;
+const navigate = useNavigate();
+navigate(0);
+const url = localStorage.getItem("url") as string;
 
 const EditVideo = () => {
   // const navigate = useNavigate();
@@ -28,6 +33,7 @@ const EditVideo = () => {
   const audioPlayerRef = useRef<HTMLAudioElement>({} as HTMLAudioElement);
   const controlRef = useRef<HTMLElement>({} as HTMLElement);
   const commentRef = useRef<HTMLDivElement>({} as HTMLDivElement);
+  const canvasRef = useRef<HTMLCanvasElement>({} as HTMLCanvasElement);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [Mp3Recorder, setMp3Recorder] = useState(
@@ -60,7 +66,12 @@ const EditVideo = () => {
 
   const [editLog, setEditLog] = useState({
     timeStamps: {} as {
-      [key: string]: { type: string; micBlobURL?: string; text?: string };
+      [key: string]: {
+        type: string;
+        micBlobURL?: string;
+        text?: string;
+        image?: ImageData;
+      };
     },
   });
 
@@ -186,6 +197,8 @@ const EditVideo = () => {
   };
 
   const mouseMoveHandler = (e: SyntheticEvent) => {
+    if (toolState.activeTool === "draw") return;
+
     if (controlRef.current !== null && controlRef !== null) {
       if (e.type === "mouseover") {
         controlRef.current.style.visibility = "visible";
@@ -272,6 +285,21 @@ const EditVideo = () => {
           });
           setCommentState({ text: "" });
         }
+      } else if (e === "draw") {
+        const ctx = canvasRef.current.getContext("2d");
+
+        setEditLog({
+          timeStamps: {
+            ...editLog.timeStamps,
+            [formatCurrentTime as string]: {
+              type: "draw",
+              image: ctx?.getImageData(0, 0, 1120, 630),
+            },
+          },
+        });
+
+        ctx?.clearRect(0, 0, 1120, 630);
+        // setCommentState({ text: "" });
       }
 
       setToolState({ activeTool: "none" });
@@ -310,9 +338,7 @@ const EditVideo = () => {
             videoPlayerRef.current.getCurrentTime() + 1,
             "seconds"
           );
-          // playing = !playing;
         }, 5);
-        // playing = !playing;
       } else if (
         editLog.timeStamps[formatCurrentTime as string].type === "comment"
       ) {
@@ -324,8 +350,33 @@ const EditVideo = () => {
           commentRef.current.innerHTML = "";
           commentRef.current.style.visibility = "hidden";
         }, 7000);
+      } else if (
+        editLog.timeStamps[formatCurrentTime as string].type === "draw"
+      ) {
+        const ctx = canvasRef.current.getContext("2d");
+
+        const replayImage = async () => {
+          visible = true;
+
+          ctx?.putImageData(
+            editLog.timeStamps[formatCurrentTime as string].image as ImageData,
+            0,
+            0
+          );
+        };
+
+        await replayImage();
+
+        setTimeout(() => {
+          visible = false;
+          ctx?.clearRect(0, 0, 1120, 630);
+        }, 4000);
       }
     }
+  };
+
+  const getCanvasRef = (e: HTMLCanvasElement) => {
+    canvasRef.current = e;
   };
 
   checkEdits();
@@ -340,7 +391,7 @@ const EditVideo = () => {
           </div>
           <div className="ev-ccv-content">
             <div className="ev-ccv-c-crumbs">
-              <>Video &gt; New Video</>
+              <>Video &gt; Untitled</>
             </div>
             <div className="ev-ccv-c-inner">
               <div
@@ -352,7 +403,7 @@ const EditVideo = () => {
                 <ReactPlayer
                   ref={videoPlayerRef}
                   className="player"
-                  url="http://www.youtube.com/watch?v=gxqPbGqYACw"
+                  url={url}
                   width="100%"
                   height="100%"
                   playing={playing}
@@ -455,12 +506,30 @@ const EditVideo = () => {
                       <br />
                     </div>
                   </>
-                ) : toolState.activeTool === "draw" ? (
-                  <Canvas width={70 * 16} height={70 * 9} />
                 ) : (
                   <></>
                 )}
+
+                {
+                  <Canvas
+                    width={70 * 16}
+                    height={70 * 9}
+                    copyRef={getCanvasRef}
+                    style={{
+                      visibility:
+                        toolState.activeTool === "draw" || visible
+                          ? "visible"
+                          : "hidden",
+                    }}
+                  />
+                }
               </div>
+              {/* <Button color="red">
+                <>Cancel</>
+              </Button>
+              <Button color="blue">
+                <>Save</>
+              </Button> */}
             </div>
           </div>
         </div>
@@ -470,16 +539,23 @@ const EditVideo = () => {
               <>Note Log</>
             </div>
             <div className="ev-log-list">
-              <div className="ev-log-list-item">
-                <div className="ev-lli-timeStampt">00:00</div>
-                <div className="ev-lli-title">Trust and Ethics</div>
-                <div className="ev-lli-icon">insert_icon</div>
-              </div>
-              <div className="ev-log-list-item">
-                <div className="ev-lli-timeStampt">00:00</div>
-                <div className="ev-lli-title">Trust and Ethics</div>
-                <div className="ev-lli-icon">insert_icon</div>
-              </div>
+              {Object.keys(editLog.timeStamps).map((x, i) => {
+                return (
+                  <div className="ev-log-list-item" key={x}>
+                    <div className="ev-lli-timeStamp">{x}</div>
+                    <div className="ev-lli-title">{i}</div>
+                    <div className="ev-lli-icon">
+                      {editLog.timeStamps[x].type === "comment" ? (
+                        <CommentIcon />
+                      ) : editLog.timeStamps[x].type === "draw" ? (
+                        <EditIcon />
+                      ) : (
+                        <MicIcon />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

@@ -16,7 +16,7 @@ const NavBar = (props: NavBar) => {
       </Link>
 
       <div className="nb-wrapper">
-        {props !== undefined ? <>hello</> : undefined}
+        {props !== undefined ? <>User</> : undefined}
       </div>
     </div>
   );

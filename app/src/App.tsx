@@ -14,7 +14,11 @@ const App = () => {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/collection" element={<Collection />} />
       <Route path="/search" element={<Search />} />
-      <Route path="/video-edit" element={<EditVideo />} />
+      <Route
+        path="/video-edit"
+        element={<EditVideo />}
+        key={Math.random() * 10}
+      />
     </Routes>
   );
 };

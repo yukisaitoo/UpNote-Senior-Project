@@ -142,6 +142,7 @@ $videoRatio: 70;
     width: 100%;
     height: 95%;
     margin-top: 5px;
+    overflow: auto;
 
     .ev-log-list-item {
       display: flex;

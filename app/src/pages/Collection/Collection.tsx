@@ -31,7 +31,7 @@ const Collection = () => {
             <div className="c-tc-thead-delete"></div>
           </div>
           <div className="c-tc-content">
-            <div className="c-tc-content-wrap">
+            {/* <div className="c-tc-content-wrap">
               <div className="c-tc-c-title">
                 <>Q&A: The History of Columbus </>
               </div>
@@ -42,7 +42,7 @@ const Collection = () => {
                 <>Video</>
               </div>
               <div className="c-tc-c-delete"></div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
