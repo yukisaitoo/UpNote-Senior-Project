@@ -12,17 +12,13 @@ import Canvas from "components/Canvas/Canvas";
 import { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from "react";
 import ReactPlayer, { ReactPlayerProps } from "react-player";
 import BaseReactPlayer, { OnProgressProps } from "react-player/base";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-// import { useNavigate } from "react-router-dom";
 import Control from "./Control";
 import { formatTime } from "./Format";
 
 let count = 0;
 let visible = false;
-const navigate = useNavigate();
-navigate(0);
-const url = localStorage.getItem("url") as string;
 
 const EditVideo = () => {
   // const navigate = useNavigate();
@@ -109,6 +105,17 @@ const EditVideo = () => {
 
   const formatCurrentTime = formatTime(currentTime);
   const formatDuration = formatTime(duration);
+  const url = localStorage.getItem("url") as string;
+  const navigate = useNavigate();
+
+  (() => {
+    if (window.localStorage) {
+      if (!localStorage.getItem("reload")) {
+        localStorage["reload"] = true;
+        window.location.reload();
+      }
+    }
+  })();
 
   const playPauseHandler = () => {
     //plays and pause the video (toggling)
@@ -381,6 +388,24 @@ const EditVideo = () => {
 
   checkEdits();
 
+  const saveVideo = () => {
+    const date = new Date();
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const videoInfo = {
+      title: "untitled",
+      date: `${month}-${day}-${year}`,
+      link: `${url}`,
+    };
+
+    localStorage.setItem("videos", JSON.stringify(videoInfo));
+
+    navigate("/collection");
+  };
+
   return (
     <div className="edit-video">
       <NavBar />
@@ -473,6 +498,17 @@ const EditVideo = () => {
                     }
                   />
                 </div>
+                <Button
+                  color="red"
+                  onClick={() => {
+                    navigate("/collection");
+                  }}
+                >
+                  <>Cancel</>
+                </Button>
+                <Button color="blue" onClick={saveVideo}>
+                  <>Save</>
+                </Button>
               </div>
               <div className="ev-ccv-i-controls">
                 {toolState.activeTool === "mic" ? (
@@ -524,12 +560,6 @@ const EditVideo = () => {
                   />
                 }
               </div>
-              {/* <Button color="red">
-                <>Cancel</>
-              </Button>
-              <Button color="blue">
-                <>Save</>
-              </Button> */}
             </div>
           </div>
         </div>

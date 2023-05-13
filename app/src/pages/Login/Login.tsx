@@ -22,10 +22,34 @@ const Login = () => {
 
   const [user, setUser] = useState({} as unknown);
 
-  console.log({ userInfo });
-  console.log({ user });
-
   const navigate = useNavigate();
+
+  async function handleLoginClick() {
+    try {
+      const response = await fetch("http://localhost:3001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userInfo),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // User is logged in
+        console.log(data);
+        if (data == true) {
+          navigate("/collection");
+        }
+      } else {
+        // Login failed
+        console.error(data.message);
+        console.log("Failed");
+      }
+    } catch (error) {
+      // Handle error
+      console.log("Failed caught");
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleCallBack(response: any) {
@@ -97,7 +121,7 @@ const Login = () => {
             <Button
               color="blue"
               onClick={() => {
-                navigate("/collection");
+                handleLoginClick();
               }}
             >
               <>Submit</>
